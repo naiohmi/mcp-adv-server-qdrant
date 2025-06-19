@@ -101,8 +101,8 @@ class TransformersProvider(EmbeddingProvider, BaseTransformerProvider):
 
     def get_vector_name(self) -> str:
         """Return the name of the vector for the Qdrant collection."""
-        model_name = self.model_name.split("/")[-1].lower()
-        return f"transformers-{model_name}"
+
+        return f"default"
 
     def get_vector_size(self) -> int:
         """Get the size of the vector for the Qdrant collection."""

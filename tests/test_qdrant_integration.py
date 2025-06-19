@@ -236,3 +236,35 @@ async def test_nonexistent_collection_search(qdrant_connector):
 
     # Verify results
     assert len(results) == 0
+@pytest.mark.asyncio
+async def test_rerank_and_bulk_upload(qdrant_connector):
+    """Test uploading 100 chunks and reranking to load only the most relevant."""
+    # Mock 100 entries, only a few are highly relevant to the query
+    relevant_chunks = [
+        Entry(content="Quantum computing enables new algorithms for cryptography.", metadata={"relevance": "high"}),
+        Entry(content="Quantum computers use qubits to perform calculations.", metadata={"relevance": "high"}),
+    ]
+    irrelevant_chunks = [
+        Entry(content=f"Random unrelated text chunk {i}", metadata={"relevance": "low"})
+        for i in range(98)
+    ]
+    all_chunks = relevant_chunks + irrelevant_chunks
+
+    # Shuffle to avoid ordering bias
+    import random
+    random.shuffle(all_chunks)
+
+    # Upload all chunks
+    for entry in all_chunks:
+        await qdrant_connector.store(entry)
+
+    # Search for a quantum-related query
+    results = await qdrant_connector.search("quantum computing algorithms qubits cryptography")
+
+    # Assert that the top 2 results are the relevant chunks
+    top_contents = [result.content for result in results[:2]]
+    assert any("Quantum computing enables new algorithms" in c for c in top_contents)
+    assert any("Quantum computers use qubits" in c for c in top_contents)
+    # Optionally, check that irrelevant chunks are not in the top results
+    for c in top_contents:
+        assert "Random unrelated text chunk" not in c
