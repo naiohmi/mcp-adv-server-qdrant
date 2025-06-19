@@ -107,6 +107,7 @@ class QdrantMCPServer(FastMCP):
                 str, Field(description="The collection to search in")
             ],
             query_filter: ArbitraryFilter | None = None,
+            top_k: Annotated[int, Field(description="Number of top results to return (default: 10)")] = 10,
         ) -> list[str]:
             """
             Find memories in Qdrant.
@@ -115,6 +116,7 @@ class QdrantMCPServer(FastMCP):
             :param collection_name: The name of the collection to search in, optional. If not provided,
                                     the default collection is used.
             :param query_filter: The filter to apply to the query.
+            :param top_k: Number of top results to return (default: 10).
             :return: A list of entries found.
             """
 
@@ -128,7 +130,7 @@ class QdrantMCPServer(FastMCP):
             entries = await self.qdrant_connector.search(
                 query,
                 collection_name=collection_name,
-                limit=self.qdrant_settings.search_limit,
+                limit=top_k,
                 query_filter=query_filter,
             )
             if not entries:

@@ -7,7 +7,7 @@ def main():
     in pyproject.toml. It runs the MCP server with a specific transport
     protocol.
     """
-
+    print("i'm here")
     # Parse the command-line arguments to determine the transport protocol.
     parser = argparse.ArgumentParser(description="mcp-server-qdrant")
     parser.add_argument(
@@ -20,5 +20,5 @@ def main():
     # Import is done here to make sure environment variables are loaded
     # only after we make the changes.
     from mcp_server_qdrant.server import mcp
-
+    print(args.transport)
     mcp.run(transport=args.transport)
